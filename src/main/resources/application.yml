@@ -1,0 +1,11 @@
+api-version: v1
+
+server:
+  port: 7759
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/todo
+    username: root
+    password: csye7125_Qb4#k
