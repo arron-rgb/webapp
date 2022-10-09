@@ -14,7 +14,6 @@ public class User {
   private String firstName;
   private String middleName;
   private String lastName;
-  private String email;
   private String username;
   private boolean verified;
   private String id;

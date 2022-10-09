@@ -1,8 +1,10 @@
 package com.neu.edu.controller;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.neu.edu.entity.User;
 import com.neu.edu.entity.dto.UserSignUp;
 import com.neu.edu.exception.SchemeException;
+import com.neu.edu.exception.UpdateReadOnlyFieldException;
 import com.neu.edu.service.UserService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
@@ -46,19 +48,15 @@ public class UserController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void update(@RequestBody User info) {
     User user = userService.getInfo();
-//    if (StringUtils.isNotEmpty(info.getUsername()) && !StringUtils.equals(user.getUsername(), info.getUsername())) {
-//      throw new UpdateReadOnlyFieldException("Cannot update READ-ONLY field!");
-//    }
-//    if (StringUtils.isNotEmpty(info.getId()) && !StringUtils.equals(user.getId(), info.getId())) {
-//      throw new UpdateReadOnlyFieldException("Cannot update other users' information!");
-//    }
-//    if (Objects.nonNull(info.getAccountCreated()) && !user.getAccountCreated().equals(info.getAccountCreated())) {
-//      throw new UpdateReadOnlyFieldException("Cannot update READ-ONLY field!");
-//    }
-//    if (Objects.nonNull(info.getAccountUpdated()) && !user.getAccountUpdated().equals(info.getAccountUpdated())) {
-//      throw new UpdateReadOnlyFieldException("Cannot update READ-ONLY field!");
-//    }
-//    userService.edit(info);
+    if (StringUtils.isNotEmpty(info.getId()) && !StringUtils.equals(user.getId(), info.getId())) {
+      throw new UpdateReadOnlyFieldException("Cannot update other users' information!");
+    }
+    // todo username validate
+    // 1. unique
+    // 2. validate again
+    // 2.1 send an email to the old address
+    user.setUsername(info.getUsername());
+    userService.updateById(info);
   }
 
   @DeleteMapping("/remove")
