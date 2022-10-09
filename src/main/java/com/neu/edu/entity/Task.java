@@ -29,6 +29,8 @@ public class Task {
    * @see com.neu.edu.util.Constants.TaskState
    */
   private Constants.TaskState state;
+  private String userId;
+  private String listId;
 
   private String task;
   /**
