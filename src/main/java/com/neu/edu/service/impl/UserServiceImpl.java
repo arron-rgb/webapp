@@ -2,13 +2,12 @@ package com.neu.edu.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.neu.edu.entity.CustomUserDetails;
-import com.neu.edu.entity.TodoList;
-import com.neu.edu.entity.User;
+import com.neu.edu.entity.*;
 import com.neu.edu.exception.CustomException;
 import com.neu.edu.exception.MailExistsException;
-import com.neu.edu.mapper.ListMapper;
-import com.neu.edu.mapper.UserMapper;
+import com.neu.edu.exception.PermissionDeniedException;
+import com.neu.edu.mapper.*;
+import com.neu.edu.service.AwsService;
 import com.neu.edu.service.UserService;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
@@ -21,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -33,16 +33,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
   @Resource
   PasswordEncoder passwordEncoder;
   @Resource
+  AttachmentMapper attachmentMapper;
+  @Resource
+  CommentMapper commentMapper;
+  @Resource
+  TagMapper tagMapper;
+  @Resource
+  TaskMapper taskMapper;
+  @Resource
   ListMapper listMapper;
+  @Resource
+  AwsService awsService;
   @Resource
   UserMapper mapper;
 
   @Override
   public void verify(String token) {
-
+    String userId = awsService.getUserIdFromToken(token);
+    User user = mapper.selectById(userId);
+    if (StringUtils.isEmpty(userId) || Objects.isNull(user)) {
+      throw new CustomException("User does not exist");
+    }
+    if (user.isVerified()) {
+      throw new CustomException("User has already activated");
+    }
+    user.setVerified(true);
+    mapper.updateById(user);
   }
 
   @Override
+  @Transactional(rollbackOn = Exception.class)
   public User signUp(User detail) {
     User user = mapper.findByUsername(detail.getUsername());
     if (!Objects.isNull(user)) {
@@ -60,6 +80,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     defaultList.setName("default");
     defaultList.setCreatedTime(LocalDateTime.now());
     listMapper.insert(defaultList);
+
+//    String token = awsService.writeToken(user.getId());
+//    awsService.sendSns(detail.getUsername(), token);
 
     return user;
   }
@@ -98,17 +121,69 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
   @Override
   public TodoList updateTodoList(TodoList list) {
+    if (!hasPermissionToEditList(list.getId())) {
+      throw new PermissionDeniedException("");
+    }
     TodoList one = listMapper.selectById(list.getId());
-    if (one == null) {
-      throw new CustomException("List does not exist");
-    }
-    User info = getInfo();
-    if (!Objects.equals(one.getUserId(), info.getId())) {
-      throw new CustomException("Cannot update other users' list");
-    }
     one.setName(list.getName());
     listMapper.updateById(one);
     return one;
+  }
+
+  @Override
+  public boolean hasPermissionToEditTask(String taskId) {
+    String userId = getInfo().getId();
+    Task task = taskMapper.selectById(taskId);
+    if (task == null) {
+      throw new CustomException("Task does not exist");
+    }
+    return Objects.equals(task.getUserId(), userId);
+  }
+
+  @Override
+  public boolean hasPermissionToEditTag(String tagId) {
+    String userId = getInfo().getId();
+    Tag task = tagMapper.selectById(tagId);
+    if (task == null) {
+      throw new CustomException("Tag does not exist");
+    }
+    return Objects.equals(task.getUserId(), userId);
+  }
+
+  @Override
+  public boolean hasPermissionToEditList(String id) {
+    String userId = getInfo().getId();
+    TodoList task = listMapper.selectById(id);
+    if (task == null) {
+      throw new CustomException("List does not exist");
+    }
+    return Objects.equals(task.getUserId(), userId);
+  }
+
+  @Override
+  public boolean hasPermissionToEditAttachment(String tag) {
+    String userId = getInfo().getId();
+    Attachment attachment = attachmentMapper.selectById(tag);
+    if (attachment == null) {
+      throw new CustomException("Attachment does not exist");
+    }
+    return Objects.equals(attachment.getUserId(), userId);
+  }
+
+  @Override
+  @Transactional(rollbackOn = Exception.class)
+  public void deleteTask(String taskId) {
+    if (!hasPermissionToEditTask(taskId)) {
+      throw new PermissionDeniedException("");
+    }
+
+    List<Attachment> attachments = attachmentMapper.selectList(Wrappers.<Attachment>lambdaQuery().eq(Attachment::getTaskId, taskId));
+    attachments.forEach(attachment -> {
+      awsService.delete(attachment.getObjectKey(), false);
+      attachmentMapper.deleteById(attachment.getId());
+    });
+    commentMapper.delete(Wrappers.<Comment>lambdaQuery().eq(Comment::getTaskId, taskId));
+    taskMapper.deleteById(taskId);
   }
 
 }

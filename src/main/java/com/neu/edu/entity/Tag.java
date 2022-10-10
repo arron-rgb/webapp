@@ -1,5 +1,7 @@
 package com.neu.edu.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
@@ -15,7 +17,8 @@ public class Tag {
 
   private String userId;
   private String name;
-
+  @TableField(fill = FieldFill.INSERT)
   private LocalDateTime createdTime;
+  @TableField(fill = FieldFill.INSERT_UPDATE)
   private LocalDateTime updatedTime;
 }

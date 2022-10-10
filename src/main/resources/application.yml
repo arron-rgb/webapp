@@ -2,6 +2,7 @@ api-version: v1
 
 server:
   port: 7759
+  verify-endpoint: https://localhost:7759/verify?token=
 
 spring:
   datasource:
@@ -12,5 +13,30 @@ spring:
 
 flyway:
   enabled: true
-  #  clean-disabled: true
   locations: classpath:db/migration
+
+
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: deleted
+
+aws:
+  dynamo-db:
+    ttl: 1
+    table-name: 'test-dev-csye6225'
+  sns:
+    topic-name: 'test-dev-csye6225'
+    from: 'notify@dev.o2hkk.me'
+  s3:
+    bucket-name: 'dev-webapp-lambda-a1239djq'
+    localpath:
+      default: /Users/arronshentu/Downloads/attachments/
+
+limit:
+  attachment:
+    amount: 5
+  tag:
+    amount: 10
+  reminder:
+    amount: 5

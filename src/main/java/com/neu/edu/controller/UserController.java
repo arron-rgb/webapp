@@ -6,6 +6,7 @@ import com.neu.edu.entity.dto.UserSignUp;
 import com.neu.edu.exception.SchemeException;
 import com.neu.edu.exception.UpdateReadOnlyFieldException;
 import com.neu.edu.service.UserService;
+import com.neu.edu.util.Result;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -36,12 +37,14 @@ public class UserController {
     }
     User target = new User();
     BeanUtils.copyProperties(info, target);
+    // todo delete this line
+    target.setVerified(true);
     return userService.signUp(target);
   }
 
   @GetMapping("/self")
-  public Object get() {
-    return userService.getInfo();
+  public Result<Object> get() {
+    return Result.buildOkData(userService.getInfo());
   }
 
   @PutMapping("/self")
