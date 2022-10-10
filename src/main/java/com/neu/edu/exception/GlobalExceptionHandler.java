@@ -20,6 +20,12 @@ public class GlobalExceptionHandler {
     return Result.buildFail(e.getMessage());
   }
 
+  @ExceptionHandler(PermissionDeniedException.class)
+  @ResponseStatus(HttpStatus.UNAUTHORIZED)
+  public Result<String> permissionDenied(Exception e) {
+    return Result.buildFail(e.getMessage());
+  }
+
   @ExceptionHandler(MailExistsException.class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   public Result<Object> mailExistsException(MailExistsException e) {

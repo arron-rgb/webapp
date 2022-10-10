@@ -26,5 +26,16 @@ public interface UserService extends IService<User> {
   List<TodoList> getTodoLists();
 
   TodoList updateTodoList(TodoList list);
+
+  boolean hasPermissionToEditTask(String taskId);
+
+  boolean hasPermissionToEditTag(String tag);
+
+  boolean hasPermissionToEditList(String id);
+
+  // todo 是否要改成hasPermissionToEditAttachment(String id, boolean throwEx)
+  boolean hasPermissionToEditAttachment(String tag);
+
+  void deleteTask(String taskId);
 }
 
