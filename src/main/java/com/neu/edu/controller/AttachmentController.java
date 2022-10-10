@@ -68,4 +68,10 @@ public class AttachmentController {
     return attachmentMapper.selectById(id);
   }
 
+
+  @DeleteMapping("")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  void delete(@RequestParam("id") String id) {
+    attachmentService.detach(id);
+  }
 }

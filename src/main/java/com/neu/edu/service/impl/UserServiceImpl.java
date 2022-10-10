@@ -186,4 +186,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     taskMapper.deleteById(taskId);
   }
 
+  @Override
+  public Tag createTag(String name) {
+    Tag tag = tagMapper.selectOne(Wrappers.<Tag>lambdaQuery().eq(Tag::getName, name));
+    if (tag == null) {
+      tag = new Tag();
+      tag.setName(name);
+      tag.setUserId(getInfo().getId());
+      tagMapper.insert(tag);
+    }
+    return tag;
+  }
+
 }
