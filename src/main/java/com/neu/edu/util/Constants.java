@@ -3,6 +3,8 @@ package com.neu.edu.util;
 import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
+import java.time.LocalDateTime;
+
 /**
  * @author arronshentu
  */
@@ -24,6 +26,15 @@ public interface Constants {
     TaskState(String state) {
       this.state = state;
     }
+
+    @JsonCreator
+    public static TaskState fromValue(LocalDateTime i, Integer completed) {
+      if (Integer.valueOf(0).equals(completed)) {
+        return COMPLETE;
+      } else {
+        return LocalDateTime.now().isAfter(i) ? TODO : OVERDUE;
+      }
+    }
   }
 
   enum TaskPriority {
@@ -44,7 +55,7 @@ public interface Constants {
       this.label = label;
       this.value = value;
     }
-    
+
     @JsonCreator
     TaskPriority fromValue(int i) {
       switch (i) {
