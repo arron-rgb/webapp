@@ -1,4 +1,14 @@
 api-version: v1
+management:
+  endpoint:
+    health:
+      group:
+        readiness:
+          include: '*'
+          show-details: always
+        liveness:
+          show-details: never
+          include: ping
 
 server:
   port: 7759
@@ -7,13 +17,9 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/todo
+    url: jdbc:mysql://localhost:3404/todo
     username: root
-    password: csye7125_Qb4#k
-
-flyway:
-  enabled: true
-  locations: classpath:db/migration
+    password: paddleW98
 
 
 mybatis-plus:
