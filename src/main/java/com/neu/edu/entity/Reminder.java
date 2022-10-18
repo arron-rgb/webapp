@@ -14,11 +14,11 @@ import java.time.LocalDateTime;
 @TableName("t_reminder")
 public class Reminder {
   private String id;
+  private String taskId;
   private LocalDateTime reminderTime;
   @TableField(fill = FieldFill.INSERT)
   private LocalDateTime createdTime;
   @TableField(fill = FieldFill.INSERT_UPDATE)
   private LocalDateTime updatedTime;
-  private String senderId;
-  private String receiverId;
+  private Integer sent;
 }
