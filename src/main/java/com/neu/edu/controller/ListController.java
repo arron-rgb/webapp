@@ -2,12 +2,14 @@ package com.neu.edu.controller;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.neu.edu.entity.Comment;
+import com.neu.edu.entity.Reminder;
 import com.neu.edu.entity.Task;
 import com.neu.edu.entity.TodoList;
 import com.neu.edu.exception.CustomException;
 import com.neu.edu.exception.PermissionDeniedException;
 import com.neu.edu.mapper.CommentMapper;
 import com.neu.edu.mapper.ListMapper;
+import com.neu.edu.mapper.ReminderMapper;
 import com.neu.edu.mapper.TaskMapper;
 import com.neu.edu.service.AttachmentService;
 import com.neu.edu.service.UserService;
@@ -32,6 +34,8 @@ public class ListController {
   @Resource
   ListMapper listMapper;
   @Resource
+  ReminderMapper reminderMapper;
+  @Resource
   TaskMapper taskMapper;
   @Resource
   UserService userService;
@@ -46,6 +50,7 @@ public class ListController {
       List<Task> data = taskMapper.selectList(Wrappers.<Task>lambdaQuery().eq(Task::getListId, id));
       list.setTasks(data);
       data.forEach(task -> {
+        task.setReminders(reminderMapper.selectList(Wrappers.<Reminder>lambdaQuery().eq(Reminder::getTaskId, task.getId())));
         task.setAttachments(attachmentService.listAttachments(task.getId()));
         task.setComments(commentMapper.selectList(Wrappers.<Comment>lambdaQuery().eq(Comment::getTaskId, task.getId())));
       });

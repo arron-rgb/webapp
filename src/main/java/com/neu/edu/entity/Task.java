@@ -51,6 +51,8 @@ public class Task {
   @TableField(exist = false)
   private List<Attachment> attachments;
   @TableField(exist = false)
+  private List<Reminder> reminders;
+  @TableField(exist = false)
   private List<Comment> comments;
 
 }

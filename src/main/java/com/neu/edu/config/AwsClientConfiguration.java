@@ -24,11 +24,11 @@ public class AwsClientConfiguration {
   @Bean(value = "s3")
   AmazonS3 amazonS3() {
     AmazonS3 s3 = AmazonS3ClientBuilder.standard().withRegion(Regions.US_EAST_1).build();
-    boolean exist = s3.doesBucketExistV2(bucketName);
-    if (!exist) {
-      s3.createBucket(bucketName);
-      log.info("Create Bucket {}", bucketName);
-    }
+//    boolean exist = s3.doesBucketExistV2(bucketName);
+//    if (!exist) {
+//      s3.createBucket(bucketName);
+//      log.info("Create Bucket {}", bucketName);
+//    }
     return s3;
   }
 
