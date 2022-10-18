@@ -14,4 +14,5 @@ public class Message {
   String content;
   String subject;
   String token;
+  String endpoint;
 }

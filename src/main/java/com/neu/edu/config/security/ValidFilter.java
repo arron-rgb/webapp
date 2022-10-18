@@ -46,7 +46,7 @@ public class ValidFilter extends OncePerRequestFilter {
     logger.trace(LogMessage.format("Found username '%s' in Basic Authorization header", username));
     if (!one.isVerified()) {
       logger.error(LogMessage.format("This account '%s' is inactive", username));
-      renderJson(response, Result.buildFailData("This account is inactive"), MediaType.APPLICATION_JSON_VALUE);
+      renderJson(response, Result.buildFail("This account is inactive"), MediaType.APPLICATION_JSON_VALUE);
       return;
     }
     filterChain.doFilter(request, response);

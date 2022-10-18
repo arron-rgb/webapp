@@ -5,7 +5,6 @@ import com.neu.edu.entity.Comment;
 import com.neu.edu.exception.CustomException;
 import com.neu.edu.exception.PermissionDeniedException;
 import com.neu.edu.mapper.CommentMapper;
-import com.neu.edu.mapper.TaskMapper;
 import com.neu.edu.service.UserService;
 import com.neu.edu.util.Result;
 import org.springframework.web.bind.annotation.*;
@@ -19,22 +18,20 @@ import javax.annotation.Resource;
 @RestController
 public class CommentController {
   @Resource
-  TaskMapper taskMapper;
-  @Resource
   UserService userService;
   @Resource
   CommentMapper commentMapper;
 
   @DeleteMapping()
-  void comment(@RequestBody Comment comment) {
-    Comment query = commentMapper.selectById(comment.getId());
+  void comment(@RequestParam("id") String commentId) {
+    Comment query = commentMapper.selectById(commentId);
     if (query == null) {
       throw new CustomException("");
     }
     if (!userService.hasPermissionToEditTask(query.getTaskId())) {
       throw new PermissionDeniedException("");
     }
-    commentMapper.deleteById(comment);
+    commentMapper.deleteById(commentId);
   }
 
   @PostMapping

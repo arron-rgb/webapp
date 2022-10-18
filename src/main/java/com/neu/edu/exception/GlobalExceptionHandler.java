@@ -44,4 +44,12 @@ public class GlobalExceptionHandler {
     return Result.buildFailData(e.getMessage());
   }
 
+
+  @ExceptionHandler(value = {IllegalArgumentException.class, SchemeException.class})
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public Result<Object> scheme(RuntimeException e) {
+    return Result.buildFailData(e.getMessage());
+  }
+
 }
+

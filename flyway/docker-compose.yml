@@ -1,0 +1,7 @@
+version: '3'
+services:
+  flyway:
+    image: flyway/flyway:7.15.0
+    command: -url=jdbc:mysql://${HOST}:${PORT}/todo -user=root -password=${PASSWORD} -connectRetries=60 migrate
+    volumes:
+      - ./migration:/flyway/sql
