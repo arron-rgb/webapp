@@ -13,6 +13,7 @@ import com.neu.edu.mapper.ReminderMapper;
 import com.neu.edu.mapper.TaskMapper;
 import com.neu.edu.service.AttachmentService;
 import com.neu.edu.service.UserService;
+import com.neu.edu.util.Constants;
 import com.neu.edu.util.Result;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
@@ -53,6 +54,7 @@ public class ListController {
         task.setReminders(reminderMapper.selectList(Wrappers.<Reminder>lambdaQuery().eq(Reminder::getTaskId, task.getId())));
         task.setAttachments(attachmentService.listAttachments(task.getId()));
         task.setComments(commentMapper.selectList(Wrappers.<Comment>lambdaQuery().eq(Comment::getTaskId, task.getId())));
+        task.setState(Constants.TaskState.fromValue(task.getDue(), task.getCompleted()));
       });
       return Result.buildOkData(list);
     }

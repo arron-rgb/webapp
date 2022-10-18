@@ -1,6 +1,7 @@
 package com.neu.edu.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.neu.edu.entity.Tag;
 import com.neu.edu.entity.TodoList;
 import com.neu.edu.entity.User;
 
@@ -37,5 +38,7 @@ public interface UserService extends IService<User> {
   boolean hasPermissionToEditAttachment(String tag);
 
   void deleteTask(String taskId);
+
+  Tag createTag(String name);
 }
 

@@ -72,6 +72,7 @@ public class AwsServiceImpl implements AwsService {
     FileUtils.touch(dest);
     file.transferTo(dest);
     PutObjectResult result = s3.putObject(bucketName, key, dest);
+    FileUtils.delete(dest);
     // todo object expiration set permanent when this object was attached to a task
     ObjectMetadata metadata = result.getMetadata();
     Map<String, String> map = new HashMap<>(4);

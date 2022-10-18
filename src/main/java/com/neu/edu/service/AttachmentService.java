@@ -11,5 +11,7 @@ import java.util.List;
 public interface AttachmentService {
   Task attach(Attachment attachment);
 
+  Task detach(String id);
+
   List<Attachment> listAttachments(String taskId);
 }

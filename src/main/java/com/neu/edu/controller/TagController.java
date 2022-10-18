@@ -12,9 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author arronshentu
@@ -62,23 +60,16 @@ public class TagController {
 
   @PostMapping
   Result<Object> createTag(@RequestBody Tag tag) {
-    tag.setUserId(userService.getInfo().getId());
-    tag.setCreatedTime(LocalDateTime.now());
-    tagMapper.insert(tag);
-    return Result.buildOkData(tag);
+    return Result.buildOkData(userService.createTag(tag.getName()));
   }
 
   @PutMapping
   Result<Object> updateTag(Tag tag) {
     Tag query = tagMapper.selectById(tag.getId());
-    if (query == null) {
-      throw new CustomException("");
-    }
-    if (!Objects.equals(query.getUserId(), userService.getInfo().getId())) {
-      throw new CustomException("");
+    if (!userService.hasPermissionToEditTag(tag.getName())) {
+      throw new PermissionDeniedException("");
     }
     query.setName(tag.getName());
-    query.setUpdatedTime(LocalDateTime.now());
     tagMapper.updateById(query);
     return Result.buildOkData(query);
   }

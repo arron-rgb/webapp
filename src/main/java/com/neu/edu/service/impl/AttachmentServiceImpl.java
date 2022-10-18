@@ -8,6 +8,7 @@ import com.neu.edu.exception.PermissionDeniedException;
 import com.neu.edu.mapper.AttachmentMapper;
 import com.neu.edu.mapper.TaskMapper;
 import com.neu.edu.service.AttachmentService;
+import com.neu.edu.service.AwsService;
 import com.neu.edu.service.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -27,10 +28,11 @@ public class AttachmentServiceImpl implements AttachmentService {
   @Resource
   UserService userService;
   @Resource
+  AwsService awsService;
+  @Resource
   AttachmentMapper attachmentMapper;
   @Resource
   TaskMapper taskMapper;
-
   @Value("${limit.attachment.amount}")
   Long maxAttachmentAmount;
 
@@ -55,6 +57,16 @@ public class AttachmentServiceImpl implements AttachmentService {
     attachment.setAttachedTime(LocalDateTime.now());
     attachmentMapper.updateById(attachment);
     return taskMapper.selectById(taskId);
+  }
+
+  @Override
+  public Task detach(String id) {
+    if (!userService.hasPermissionToEditAttachment(id)) {
+      throw new PermissionDeniedException("");
+    }
+    Attachment attachment = attachmentMapper.selectById(id);
+    awsService.delete(attachment.getObjectKey(), false);
+    return null;
   }
 
   @Override
