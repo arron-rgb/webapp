@@ -120,11 +120,13 @@ public class AwsServiceImpl implements AwsService {
     // change user email
     if (subject.equals("ChangeUserEmail")) {
       message.setNewEmail(newEmail);
-      message.setContent(generateChangeUserEmialContent(message));
+      message.setContent(generateChangeUserEmailContent(message));
 
     // verify user email
     } else if (subject.equals("Verification")) {
       message.setContent(generateVerificationContent(message));
+    } else if (subject.equals("ChangeUserEmailCompletion")) {
+      message.setContent(generateChangeUserEmailCompletionContent(message));
     } else {
       // skip
       return;
@@ -160,11 +162,16 @@ public class AwsServiceImpl implements AwsService {
   }
 
   // TODO 添加认证的url和邮件模板
-  String generateChangeUserEmialContent(Message message) {
-    return "<h1>Example HTML Message Body</h1> <br>" + "        <p>Here is the link to change your email address to:  <br>"
-            + message.getNewEmail()
+  String generateChangeUserEmailContent(Message message) {
+    return "<h1>Example HTML Message Body</h1> <br>" + "        <p>Here is the link to change your email address to: "
+            + message.getNewEmail() +  "<br>"
             + "        <a href=" + endpoint + message.getToken() + ">Click Here</a> <br>" + "        </p> <br>"
             + "        <p>Check your name is " + message.getTo() + " <br>" + "        </p>";
+  }
+
+  // TODO 添加认证的url和邮件模板
+  String generateChangeUserEmailCompletionContent(Message message) {
+    return "<h1>Example HTML Message Body</h1> <br>" + "        <p>Your username has been transfer to your current email address!</p>";
   }
 
   String addTimestamp(String filename) {

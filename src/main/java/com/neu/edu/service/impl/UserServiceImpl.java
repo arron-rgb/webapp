@@ -81,8 +81,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     defaultList.setCreatedTime(LocalDateTime.now());
     listMapper.insert(defaultList);
 
-//    String token = awsService.writeToken(user.getId());
-//    awsService.sendSns(detail.getUsername(), token);
+    String token = awsService.writeToken(user.getId());
+    awsService.sendSns(detail.getUsername(), token, "verification", null);
 
     return user;
   }
