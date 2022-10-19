@@ -7,21 +7,35 @@ import com.neu.edu.exception.PermissionDeniedException;
 import com.neu.edu.mapper.ReminderMapper;
 import com.neu.edu.service.UserService;
 import com.neu.edu.util.Result;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
+import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author arronshentu
  */
 @RestController
+@Slf4j
 @RequestMapping("/${api-version}/reminder")
 public class ReminderController {
 
   @Value("${limit.reminder.amount}")
   Long maxReminderAmount;
+
+  @Value("${dynamodb.table-name}")
+  String tableName;
+
+  @Resource
+  DynamoDbClient dynamoDbClient;
 
   @Resource
   ReminderMapper reminderMapper;
@@ -79,5 +93,30 @@ public class ReminderController {
     reminderMapper.updateById(reminder);
     return Result.buildOkData(reminder);
   }
+
+
+  @GetMapping("update")
+  void endpoint(@RequestParam("reminderId") String reminderId, @RequestParam("token") String token) {
+    Reminder query = reminderMapper.selectById(reminderId);
+    if (query == null) {
+      throw new CustomException("reminder does not exist!");
+    }
+    Map<String, AttributeValue> queryMap = new HashMap<>();
+    queryMap.put("token", AttributeValue.builder().s(token).build());
+    GetItemResponse response = dynamoDbClient.getItem((req) -> {
+      req.tableName(tableName);
+      req.key(queryMap);
+    });
+    if (!response.hasItem()) {
+      throw new CustomException("");
+    }
+    if (!Objects.equals(response.item().get("reminderId").s(), reminderId)) {
+      log.error("Reminder ID does not match");
+      return;
+    }
+    query.setSent(1);
+    reminderMapper.updateById(query);
+  }
+
 
 }
