@@ -109,14 +109,29 @@ public class AwsServiceImpl implements AwsService {
   ObjectMapper mapper = new ObjectMapper();
 
   @Override
-  public void sendSns(String to, String token) {
+  public void sendSns(String to, String token, String subject, String newEmail) {
     CreateTopicResponse result = sns.createTopic((req) -> req.name(topicName));
     Message message = new Message();
-    message.setSubject("Notification");
+    message.setSubject(subject);
     message.setFrom(from);
     message.setTo(to);
     message.setToken(token);
-    message.setContent(generateTemplate(message));
+
+    // change user email
+    if (subject.equals("ChangeUserEmail")) {
+      message.setNewEmail(newEmail);
+      message.setContent(generateChangeUserEmailContent(message));
+
+    // verify user email
+    } else if (subject.equals("Verification")) {
+      message.setContent(generateVerificationContent(message));
+    } else if (subject.equals("ChangeUserEmailCompletion")) {
+      message.setContent(generateChangeUserEmailCompletionContent(message));
+    } else {
+      // skip
+      return;
+    }
+
     log.info(message.getContent());
     sns.publish((req) -> {
       req.topicArn(result.topicArn());
@@ -140,10 +155,23 @@ public class AwsServiceImpl implements AwsService {
   }
 
   // TODO 添加认证的url和邮件模板
-  String generateTemplate(Message message) {
+  String generateVerificationContent(Message message) {
     return "<h1>Example HTML Message Body</h1> <br>" + "        <p>Here is the link for your last registeration  <br>"
       + "        <a href=" + endpoint + message.getToken() + ">Click Here</a> <br>" + "        </p> <br>"
       + "        <p>Check your name is " + message.getTo() + " <br>" + "        </p>";
+  }
+
+  // TODO 添加认证的url和邮件模板
+  String generateChangeUserEmailContent(Message message) {
+    return "<h1>Example HTML Message Body</h1> <br>" + "        <p>Here is the link to change your email address to: "
+            + message.getNewEmail() +  "<br>"
+            + "        <a href=" + endpoint + message.getToken() + ">Click Here</a> <br>" + "        </p> <br>"
+            + "        <p>Check your name is " + message.getTo() + " <br>" + "        </p>";
+  }
+
+  // TODO 添加认证的url和邮件模板
+  String generateChangeUserEmailCompletionContent(Message message) {
+    return "<h1>Example HTML Message Body</h1> <br>" + "        <p>Your username has been transfer to your current email address!</p>";
   }
 
   String addTimestamp(String filename) {

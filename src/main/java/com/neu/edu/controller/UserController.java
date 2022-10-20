@@ -3,8 +3,11 @@ package com.neu.edu.controller;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.neu.edu.entity.User;
 import com.neu.edu.entity.dto.UserSignUp;
+import com.neu.edu.exception.CustomException;
 import com.neu.edu.exception.SchemeException;
 import com.neu.edu.exception.UpdateReadOnlyFieldException;
+import com.neu.edu.mapper.UserMapper;
+import com.neu.edu.service.AwsService;
 import com.neu.edu.service.UserService;
 import com.neu.edu.util.Result;
 import org.springframework.beans.BeanUtils;
@@ -27,6 +30,11 @@ public class UserController {
 
   @Resource
   UserService userService;
+
+  UserMapper mapper;
+
+  @Resource
+  AwsService awsService;
 
   @PostMapping("")
   @ResponseStatus(HttpStatus.CREATED)
@@ -56,10 +64,31 @@ public class UserController {
     }
     // todo username validate
     // 1. unique
+    User tempUser = mapper.findByUsername(info.getUsername());
+    if (tempUser != null) {
+      throw new CustomException("new email address is invalid!");
+    }
+
     // 2. validate again
-    // 2.1 send an email to the old address
+
+
+    // send an email to the old address
+    String token = awsService.writeToken(user.getId());
+    awsService.sendSns(user.getUsername(), token, "ChangeUserEmail", info.getUsername());
+
     user.setUsername(info.getUsername());
     userService.updateById(info);
+  }
+
+  @GetMapping("/updateEmail")
+  public void updateEmail(@RequestParam("oldEmailAddress") String oldEmailAddress, @RequestParam("newEmailAddress") String newEmailAddress) {
+    User user = mapper.findByUsername(oldEmailAddress);
+    user.setUsername(newEmailAddress);
+    userService.updateById(user);
+
+    // send email to new email address
+    String token = awsService.writeToken(user.getId());
+    awsService.sendSns(user.getUsername(), token, "ChangeUserEmailCompletion", null);
   }
 
   @DeleteMapping("/remove")

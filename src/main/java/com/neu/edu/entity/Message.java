@@ -14,5 +14,7 @@ public class Message {
   String content;
   String subject;
   String token;
+  String reminderId;
+  String newEmail;
   String endpoint;
 }

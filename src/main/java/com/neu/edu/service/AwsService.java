@@ -15,7 +15,7 @@ public interface AwsService {
 
   String writeToken(String userId);
 
-  void sendSns(String to, String token);
+  void sendSns(String to, String token, String subject, String newEmail);
 
   String getUserIdFromToken(String token);
 
