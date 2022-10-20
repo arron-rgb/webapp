@@ -31,7 +31,7 @@ public class ReminderController {
   @Value("${limit.reminder.amount}")
   Long maxReminderAmount;
 
-  @Value("${dynamodb.table-name}")
+  @Value("${aws.dynamodb.table-name}")
   String tableName;
 
   @Resource
