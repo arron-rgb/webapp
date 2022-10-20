@@ -75,7 +75,7 @@ public class ReminderConfiguration {
     // 或者 把发送过的reminder存到dynamoDB里，在定时job里轮询reminder的时候，检查一下是否已发送。已发送就我这里更新reminder的sent。
     // 没发送或者没这个reminder就按没发送的逻辑处理
     message.setReminderId(reminder.getId());
-    message.setEndpoint("/${api-version}/reminder/reminderSent");
+    message.setEndpoint("/v1/reminder/reminderSent");
     message.setContent("TODO");
 //    sns.publish((req) -> {
 //      req.topicArn(result.topicArn());
