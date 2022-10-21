@@ -46,8 +46,6 @@ public class UserController {
     }
     User target = new User();
     BeanUtils.copyProperties(info, target);
-    // todo delete this line
-    target.setVerified(true);
     return userService.signUp(target);
   }
 
