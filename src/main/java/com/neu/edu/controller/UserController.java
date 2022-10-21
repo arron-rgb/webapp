@@ -31,6 +31,7 @@ public class UserController {
   @Resource
   UserService userService;
 
+  @Resource
   UserMapper mapper;
 
   @Resource
@@ -82,6 +83,8 @@ public class UserController {
 
   @GetMapping("/updateEmail")
   public void updateEmail(@RequestParam("oldEmailAddress") String oldEmailAddress, @RequestParam("newEmailAddress") String newEmailAddress) {
+    oldEmailAddress = oldEmailAddress.replaceAll(" ", "+");
+    newEmailAddress = newEmailAddress.replaceAll(" ", "+");
     User user = mapper.findByUsername(oldEmailAddress);
     user.setUsername(newEmailAddress);
     userService.updateById(user);

@@ -82,7 +82,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     listMapper.insert(defaultList);
 
     String token = awsService.writeToken(user.getId());
-    awsService.sendSns(detail.getUsername(), token, "verification", null);
+    awsService.sendSns(detail.getUsername(), token, "Verification", null);
 
     return user;
   }
