@@ -2,7 +2,6 @@ package com.neu.edu.controller;
 
 import com.neu.edu.entity.Task;
 import com.neu.edu.entity.dto.TaskDto;
-import com.neu.edu.exception.PermissionDeniedException;
 import com.neu.edu.exception.SchemeException;
 import com.neu.edu.mapper.TaskMapper;
 import com.neu.edu.service.UserService;
@@ -36,11 +35,8 @@ public class TaskController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   Result<Object> create(@RequestBody @Valid TaskDto taskDto, Errors errors) throws SchemeException {
-
+    userService.hasPermissionToEditList(taskDto.getListId());
     // step1: list id summary task due priority
-    if (!userService.hasPermissionToEditList(taskDto.getListId())) {
-      throw new PermissionDeniedException("");
-    }
     if (errors.hasErrors()) {
       throw new SchemeException(
         Objects.requireNonNull(errors.getFieldError()).getField() + " is not a well-formed field");
@@ -56,12 +52,8 @@ public class TaskController {
   @PutMapping
   @ResponseStatus(HttpStatus.NO_CONTENT)
   void update(@RequestBody @Valid TaskDto taskDto, Errors errors) throws SchemeException {
-    if (!userService.hasPermissionToEditList(taskDto.getListId())) {
-      throw new PermissionDeniedException("");
-    }
-    if (!userService.hasPermissionToEditTask(taskDto.getId())) {
-      throw new PermissionDeniedException("");
-    }
+    userService.hasPermissionToEditList(taskDto.getListId());
+    userService.hasPermissionToEditTask(taskDto.getId());
     if (errors.hasErrors()) {
       throw new SchemeException(
         Objects.requireNonNull(errors.getFieldError()).getField() + " is not a well-formed field");

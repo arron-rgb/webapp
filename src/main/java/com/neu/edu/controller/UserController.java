@@ -63,35 +63,24 @@ public class UserController {
     if (StringUtils.isNotEmpty(info.getId()) && !StringUtils.equals(user.getId(), info.getId())) {
       throw new UpdateReadOnlyFieldException("Cannot update other users' information!");
     }
-    // todo username validate
     // 1. unique
     User tempUser = mapper.findByUsername(info.getUsername());
     if (tempUser != null) {
       throw new CustomException("new email address is invalid!");
     }
+    if (Objects.equals(info.getUsername(), user.getUsername())) {
+      throw new CustomException("nothing changed");
+    }
 
-    // 2. validate again
-
-
-    // send an email to the old address
-    String token = awsService.writeToken(user.getId());
+    String token = awsService.writeToken(user.getId(), user.getUsername());
     awsService.sendSns(user.getUsername(), token, "ChangeUserEmail", info.getUsername());
 
+
+    // email the old address
+    // todo dynamodb中的token过期以后 email应该回滚成原先的
     user.setUsername(info.getUsername());
-    userService.updateById(info);
-  }
-
-  @GetMapping("/updateEmail")
-  public void updateEmail(@RequestParam("oldEmailAddress") String oldEmailAddress, @RequestParam("newEmailAddress") String newEmailAddress) {
-    oldEmailAddress = oldEmailAddress.replaceAll(" ", "+");
-    newEmailAddress = newEmailAddress.replaceAll(" ", "+");
-    User user = mapper.findByUsername(oldEmailAddress);
-    user.setUsername(newEmailAddress);
+    user.setVerified(false);
     userService.updateById(user);
-
-    // send email to new email address
-    String token = awsService.writeToken(user.getId());
-    awsService.sendSns(user.getUsername(), token, "ChangeUserEmailCompletion", null);
   }
 
   @DeleteMapping("/remove")

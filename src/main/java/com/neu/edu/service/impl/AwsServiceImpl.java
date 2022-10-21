@@ -7,21 +7,21 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neu.edu.entity.Message;
 import com.neu.edu.exception.AttachmentNotFoundException;
-import com.neu.edu.exception.CustomException;
 import com.neu.edu.service.AwsService;
+import com.neu.edu.util.EmailTemplate;
 import com.neu.edu.util.TokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValueUpdate;
 import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 import software.amazon.awssdk.services.sns.SnsClient;
-import software.amazon.awssdk.services.sns.model.CreateTopicResponse;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.neu.edu.util.Constants.*;
 
 
 /**
@@ -40,12 +42,9 @@ public class AwsServiceImpl implements AwsService {
   @Resource
   SnsClient sns;
   @Resource
-  DynamoDbClient dynamoDB;
+  DynamoDbClient dynamoDbClient;
   @Resource
   AmazonS3 s3;
-
-  @Value("${server.endpoint}")
-  String endpoint;
   @Value("${aws.sns.from}")
   String from;
   @Value("${aws.sns.topic-name}")
@@ -58,9 +57,6 @@ public class AwsServiceImpl implements AwsService {
   String tableName;
   @Value("${aws.dynamo-db.ttl}")
   Long ttl;
-
-  @Value("${api-version}")
-  String apiVersion;
 
   /**
    * @param file
@@ -94,15 +90,15 @@ public class AwsServiceImpl implements AwsService {
   }
 
   @Override
-  public String writeToken(String userId) {
+  public String writeToken(String userId, String username) {
     String token = TokenProvider.generate();
-    Map<String, AttributeValue> map = buildMap(token);
+    Map<String, AttributeValue> map = new HashMap<>();
     map.put("userId", AttributeValue.builder().s(userId).build());
-    long value = Instant.now().getEpochSecond();
-    value += ttl;
-    map.put("ttl", AttributeValue.builder().n(String.valueOf(value)).build());
-    map.put("used", AttributeValue.builder().bool(false).build());
-    dynamoDB.putItem(builder -> {
+    if (StringUtils.hasText(username)) {
+      map.put("username", AttributeValue.builder().s(username).build());
+    }
+    getFullMap(token, map);
+    dynamoDbClient.putItem(builder -> {
       builder.tableName(tableName);
       builder.item(map);
     });
@@ -113,26 +109,22 @@ public class AwsServiceImpl implements AwsService {
 
   @Override
   public void sendSns(String to, String token, String subject, String newEmail) {
-//    CreateTopicResponse result = sns.createTopic((req) -> req.name(topicName));
-    Message message = new Message();
-    message.setSubject(subject);
-    message.setFrom(from);
-    message.setTo(to);
-    message.setToken(token);
+    Message message = new Message().setSubject(subject).setFrom(from).setTo(to).setToken(token);
 
-    // change user email
-    if (subject.equals("ChangeUserEmail")) {
-      message.setNewEmail(newEmail);
-      message.setContent(generateChangeUserEmailContent(message));
-
-    // verify user email
-    } else if (subject.equals("Verification")) {
-      message.setContent(generateVerificationContent(message));
-    } else if (subject.equals("ChangeUserEmailCompletion")) {
-      message.setContent(generateChangeUserEmailCompletionContent(message));
-    } else {
-      log.info("wrong message subject");
-      return;
+    switch (subject) {
+      case CHANGE_USER_EMAIL_SUBJECT:
+      case VERIFICATION_SUBJECT:
+        message.setContent(EmailTemplate.generateVerificationContent(message));
+        break;
+      case CHANGE_USER_EMAIL_COMPLETION_SUBJECT:
+        message.setContent(EmailTemplate.CHANGE_COMPLETED);
+        break;
+      case "Revert Email Change":
+        message.setContent(EmailTemplate.revertContent(token));
+        break;
+      default:
+        log.error("unknown subject, {}", subject);
+        return;
     }
 
     log.info(message.getContent());
@@ -148,27 +140,6 @@ public class AwsServiceImpl implements AwsService {
     });
   }
 
-  // TODO 添加认证的url和邮件模板
-  String generateVerificationContent(Message message) {
-    return "<h1>Example HTML Message Body</h1> <br>" + "        <p>Here is the link for your last registeration  <br>"
-      + "        <a href=" + endpoint + "/verify?token=" + message.getToken() + ">Click Here</a> <br>" + "        </p> <br>"
-      + "        <p>Check your name is " + message.getTo() + " <br>" + "        </p>";
-  }
-
-  // TODO 添加认证的url和邮件模板
-  String generateChangeUserEmailContent(Message message) {
-    return "<h1>Example HTML Message Body</h1> <br>" + "        <p>Here is the link to change your email address to: "
-            + message.getNewEmail() +  "<br>"
-            + "        <a href=" + endpoint + "/" + apiVersion +"/user/updateEmail?oldEmailAddress=" + message.getTo() + "&newEmailAddress=" + message.getNewEmail()
-            + ">Click Here</a> <br>" + "        </p> <br>"
-            + "        <p>Check your name is " + message.getTo() + " <br>" + "        </p>";
-  }
-
-  // TODO 添加认证的url和邮件模板
-  String generateChangeUserEmailCompletionContent(Message message) {
-    return "<h1>Example HTML Message Body</h1> <br>" + "        <p>Your username has been transfer to your current email address!</p>";
-  }
-
   String addTimestamp(String filename) {
     String ext = FilenameUtils.getExtension(filename);
     String name = FilenameUtils.getBaseName(filename);
@@ -177,41 +148,92 @@ public class AwsServiceImpl implements AwsService {
 
   @Override
   public String getUserIdFromToken(String token) {
-    GetItemResponse response = dynamoDB.getItem((req) -> {
-      req.tableName(tableName);
-      req.key(buildMap(token));
-    });
-    if (!response.hasItem()) {
-      throw new CustomException("This link has expired");
-    }
-    String ttl = response.item().get("ttl").n();
-    if (Long.parseLong(ttl) < Instant.now().getEpochSecond()) {
-      throw new CustomException("This link has expired");
-    }
-    return response.item().get("userId").s();
+    Map<String, AttributeValue> map = query(token);
+    return map.get("userId").s();
   }
 
   @Override
   public void deleteToken(String token) {
-    dynamoDB.deleteItem((req) -> {
+    dynamoDbClient.deleteItem((req) -> {
       req.tableName(tableName);
-      req.key(buildMap(token));
+      req.key(getTokenMap(token));
     });
   }
 
   @Override
   public boolean isValid(String token) {
-    GetItemResponse response = dynamoDB.getItem((req) -> {
+    GetItemResponse response = dynamoDbClient.getItem((req) -> {
       req.tableName(tableName);
-      req.key(buildMap(token));
+      req.key(getTokenMap(token));
     });
     return response.hasItem();
   }
 
-  public Map<String, AttributeValue> buildMap(String token) {
+  @Override
+  public void publishMessage(Message message) {
+    sns.publish((req) -> {
+      req.topicArn(topicName);
+      try {
+        String body = mapper.writeValueAsString(message);
+        req.message(body);
+        log.info(body);
+      } catch (JsonProcessingException e) {
+        e.printStackTrace();
+      }
+    });
+  }
+
+  @Override
+  public boolean putItem(Map<String, AttributeValue> map) {
+    PutItemResponse response = dynamoDbClient.putItem(builder -> {
+      builder.tableName(tableName);
+      builder.item(map);
+    });
+    return response.hasAttributes();
+  }
+
+  public Map<String, AttributeValue> getTokenMap(String token) {
     Map<String, AttributeValue> map = new HashMap<>(2);
     map.put("token", AttributeValue.builder().s(token).build());
     return map;
+  }
+
+
+  @Override
+  public Map<String, AttributeValue> getFullMap(String token, Map<String, AttributeValue> map) {
+    long value = Instant.now().getEpochSecond();
+    value += ttl;
+    map.put("token", AttributeValue.builder().s(token).build());
+    map.put("ttl", AttributeValue.builder().n(String.valueOf(value)).build());
+    map.put("used", AttributeValue.builder().bool(false).build());
+    return map;
+  }
+
+
+  @Override
+  public Map<String, AttributeValue> query(String token) {
+    Map<String, AttributeValue> queryMap = getTokenMap(token);
+    GetItemResponse itemResponse = dynamoDbClient.getItem(req -> {
+      req.key(queryMap);
+      req.tableName(tableName);
+    });
+    if (!itemResponse.hasItem()) {
+      log.error("try to get item {}, but failed", token);
+      // todo check ttl
+      throw new RuntimeException("");
+    }
+
+//    String ttl = itemResponse.item().get("ttl").n();
+//    if (Long.parseLong(ttl) < Instant.now().getEpochSecond()) {
+//      throw new CustomException("This link has expired");
+//    }
+    return itemResponse.item();
+  }
+
+  @Override
+  public AttributeValue getValue(String token, String key) {
+    Map<String, AttributeValue> test = query(token);
+    return test.get(key);
   }
 
 }

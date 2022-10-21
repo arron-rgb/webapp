@@ -13,14 +13,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
-  @ExceptionHandler(AuthenticationServiceException.class)
-  @ResponseStatus(HttpStatus.UNAUTHORIZED)
-  public Result<String> unauthorized(Exception e) {
-    return Result.buildFail(e.getMessage());
-  }
-
-  @ExceptionHandler(PermissionDeniedException.class)
+  
+  @ExceptionHandler({PermissionDeniedException.class, AuthenticationServiceException.class})
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public Result<String> permissionDenied(Exception e) {
     return Result.buildFail(e.getMessage());
@@ -35,7 +29,7 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(RuntimeException.class)
   public Result<Object> runtime(RuntimeException e) {
     e.printStackTrace();
-    return Result.buildFailData("Unknown Exception");
+    return Result.buildFailData(e.getMessage());
   }
 
   @ExceptionHandler(CustomException.class)

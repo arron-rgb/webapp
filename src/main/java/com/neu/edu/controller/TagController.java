@@ -2,7 +2,6 @@ package com.neu.edu.controller;
 
 import com.neu.edu.entity.Tag;
 import com.neu.edu.exception.CustomException;
-import com.neu.edu.exception.PermissionDeniedException;
 import com.neu.edu.mapper.TagMapper;
 import com.neu.edu.mapper.TagTaskMapper;
 import com.neu.edu.mapper.TaskMapper;
@@ -34,24 +33,11 @@ public class TagController {
 
   @DeleteMapping("detach")
   void untag(@RequestParam("tagId") String tagId, @RequestParam("taskId") String taskId) {
-    if (!userService.hasPermissionToEditTag(tagId)) {
-      throw new PermissionDeniedException("");
-    }
-    if (!userService.hasPermissionToEditTask(taskId)) {
-      throw new PermissionDeniedException("");
-    }
     tagTaskMapper.untag(tagId, taskId);
   }
 
   @PostMapping("attach")
   void tag(@RequestParam("tagId") String tagId, @RequestParam("taskId") String taskId) {
-    if (!userService.hasPermissionToEditTag(tagId)) {
-      throw new PermissionDeniedException("");
-    }
-    // 如果task不属于这个user 拒绝
-    if (!userService.hasPermissionToEditTask(taskId)) {
-      throw new PermissionDeniedException("");
-    }
     if (tagTaskMapper.countTags(taskId) >= maxTagAmount) {
       throw new CustomException("");
     }
@@ -66,9 +52,7 @@ public class TagController {
   @PutMapping
   Result<Object> updateTag(Tag tag) {
     Tag query = tagMapper.selectById(tag.getId());
-    if (!userService.hasPermissionToEditTag(tag.getName())) {
-      throw new PermissionDeniedException("");
-    }
+    userService.hasPermissionToEditTag(tag.getName());
     query.setName(tag.getName());
     tagMapper.updateById(query);
     return Result.buildOkData(query);

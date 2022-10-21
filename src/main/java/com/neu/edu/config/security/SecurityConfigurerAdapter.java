@@ -1,5 +1,6 @@
 package com.neu.edu.config.security;
 
+import com.neu.edu.util.ApplicationConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -29,7 +30,7 @@ public class SecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
     http.httpBasic().authenticationEntryPoint(authenticationEntryPoint);
     http.addFilterAfter(new ValidFilter(), BasicAuthenticationFilter.class);
     http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-    http.authorizeRequests().antMatchers("/", "/v1/user", "/verify","/actuator/health/*", "/v1/reminder/update", "/v1/user/updateEmail").permitAll().anyRequest().authenticated();
+    http.authorizeRequests().antMatchers("/", "/v1/user", ApplicationConfig.get("server.verify-path"), "/actuator/health/*", ApplicationConfig.get("server.reminder-path"), ApplicationConfig.get("server.revert-path")).permitAll().anyRequest().authenticated();
   }
 
   @Bean

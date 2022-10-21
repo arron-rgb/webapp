@@ -9,6 +9,12 @@ import java.time.LocalDateTime;
  * @author arronshentu
  */
 public interface Constants {
+  String CHANGE_USER_EMAIL_SUBJECT = "ChangeUserEmail";
+  String CHANGE_USER_EMAIL_COMPLETION_SUBJECT = "ChangeUserEmailCompletion";
+  String VERIFICATION_SUBJECT = "Verification";
+  String REMINDER_SUBJECT = "Reminder";
+  
+  String TASK_PERMISSION_DENIED = "This task does not belong to you.";
   int SUCCESS = 1;
   int FAIL = 0;
 
