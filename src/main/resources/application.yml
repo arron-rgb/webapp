@@ -12,14 +12,15 @@ management:
 
 server:
   port: 7759
-  verify-endpoint: https://localhost:7759/verify?token=
+#  verify-endpoint: https://localhost:7759/verify?token=
+  endpoint: http://localhost:7759
 
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3404/todo
+    url: jdbc:mysql://localhost:3306/todo
     username: root
-    password: csye7125_Qb4#k
+    password: ra9ra9
 
 mybatis-plus:
   global-config:
@@ -28,15 +29,15 @@ mybatis-plus:
 
 aws:
   dynamo-db:
-    ttl: 1
-    table-name: 'test-dev-csye6225'
+    ttl: 600
+    table-name: 'test-prod-csye7125'
   sns:
-    topic-name: 'test-dev-csye6225'
-    from: 'notify@dev.o2hkk.me'
+    topic-name: 'arn:aws:sns:us-east-1:039848784614:test-prod-csye7125'
+    from: 'notify@prod.aws.ethanzhang1997.me'
   s3:
-    bucket-name: 'dev-webapp-lambda-a1239djq'
+    bucket-name: 'prod.lambda'
     localpath:
-      default: /Users/arronshentu/Downloads/attachments/
+      default: "D:/Attachments/"
 
 limit:
   attachment:
