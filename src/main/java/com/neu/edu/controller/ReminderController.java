@@ -108,11 +108,7 @@ public class ReminderController {
       req.key(queryMap);
     });
     if (!response.hasItem()) {
-      throw new CustomException("");
-    }
-    if (!Objects.equals(response.item().get("reminderId").s(), reminderId)) {
-      log.error("Reminder ID does not match");
-      return;
+      throw new CustomException("token does not exist!");
     }
     query.setSent(1);
     reminderMapper.updateById(query);

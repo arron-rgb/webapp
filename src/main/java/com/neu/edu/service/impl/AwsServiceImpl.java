@@ -44,7 +44,7 @@ public class AwsServiceImpl implements AwsService {
   @Resource
   AmazonS3 s3;
 
-  @Value("${server.verify-endpoint}")
+  @Value("${server.endpoint}")
   String endpoint;
   @Value("${aws.sns.from}")
   String from;
@@ -58,6 +58,9 @@ public class AwsServiceImpl implements AwsService {
   String tableName;
   @Value("${aws.dynamo-db.ttl}")
   Long ttl;
+
+  @Value("${api-version}")
+  String apiVersion;
 
   /**
    * @param file
@@ -96,7 +99,7 @@ public class AwsServiceImpl implements AwsService {
     Map<String, AttributeValue> map = buildMap(token);
     map.put("userId", AttributeValue.builder().s(userId).build());
     long value = Instant.now().getEpochSecond();
-    value += 60;
+    value += ttl;
     map.put("ttl", AttributeValue.builder().n(String.valueOf(value)).build());
     map.put("used", AttributeValue.builder().bool(false).build());
     dynamoDB.putItem(builder -> {
@@ -110,7 +113,7 @@ public class AwsServiceImpl implements AwsService {
 
   @Override
   public void sendSns(String to, String token, String subject, String newEmail) {
-    CreateTopicResponse result = sns.createTopic((req) -> req.name(topicName));
+//    CreateTopicResponse result = sns.createTopic((req) -> req.name(topicName));
     Message message = new Message();
     message.setSubject(subject);
     message.setFrom(from);
@@ -128,13 +131,13 @@ public class AwsServiceImpl implements AwsService {
     } else if (subject.equals("ChangeUserEmailCompletion")) {
       message.setContent(generateChangeUserEmailCompletionContent(message));
     } else {
-      // skip
+      log.info("wrong message subject");
       return;
     }
 
     log.info(message.getContent());
     sns.publish((req) -> {
-      req.topicArn(result.topicArn());
+      req.topicArn(topicName);
       try {
         String body = mapper.writeValueAsString(message);
         req.message(body);
@@ -143,21 +146,12 @@ public class AwsServiceImpl implements AwsService {
         e.printStackTrace();
       }
     });
-
-    dynamoDB.updateItem((req) -> {
-      req.tableName(tableName);
-      req.key(buildMap(token));
-      Map<String, AttributeValueUpdate> attributeUpdates = new HashMap<>();
-      attributeUpdates.put("used",
-        AttributeValueUpdate.builder().value(AttributeValue.builder().bool(true).build()).build());
-      req.attributeUpdates(attributeUpdates);
-    });
   }
 
   // TODO 添加认证的url和邮件模板
   String generateVerificationContent(Message message) {
     return "<h1>Example HTML Message Body</h1> <br>" + "        <p>Here is the link for your last registeration  <br>"
-      + "        <a href=" + endpoint + message.getToken() + ">Click Here</a> <br>" + "        </p> <br>"
+      + "        <a href=" + endpoint + "/verify?token=" + message.getToken() + ">Click Here</a> <br>" + "        </p> <br>"
       + "        <p>Check your name is " + message.getTo() + " <br>" + "        </p>";
   }
 
@@ -165,7 +159,8 @@ public class AwsServiceImpl implements AwsService {
   String generateChangeUserEmailContent(Message message) {
     return "<h1>Example HTML Message Body</h1> <br>" + "        <p>Here is the link to change your email address to: "
             + message.getNewEmail() +  "<br>"
-            + "        <a href=" + endpoint + message.getToken() + ">Click Here</a> <br>" + "        </p> <br>"
+            + "        <a href=" + endpoint + "/" + apiVersion +"/user/updateEmail?oldEmailAddress=" + message.getTo() + "&newEmailAddress=" + message.getNewEmail()
+            + ">Click Here</a> <br>" + "        </p> <br>"
             + "        <p>Check your name is " + message.getTo() + " <br>" + "        </p>";
   }
 
