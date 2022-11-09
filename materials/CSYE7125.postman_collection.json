@@ -1,0 +1,849 @@
+{
+	"info": {
+		"_postman_id": "71a68d9e-1f0f-443c-97f8-be71f3927fbc",
+		"name": "CSYE7125",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "12339140"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"joe\",\n    \"last_name\": \"yo\",\n    \"username\": {{username}},\n    \"password\": \"asd\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/user"
+					},
+					"response": []
+				},
+				{
+					"name": "self",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"username": "{{username}}",
+								"password": "asd"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/user/self"
+					},
+					"response": []
+				},
+				{
+					"name": "update",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"username": "{{username}}",
+								"password": "asd"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"joe\",\n    \"last_name\": \"yo\",\n    \"username\": \"shentu.k+dev@northeastern.edu\",\n    \"password\": \"asd\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/user/self"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Tag",
+			"item": [
+				{
+					"name": "list",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"username": "{{username}}",
+								"password": "asd"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/tag"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"username": "{{username}}",
+								"password": "asd"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"tag-1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/tag"
+					},
+					"response": []
+				},
+				{
+					"name": "attach",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"username": "{{username}}",
+								"password": "asd"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{protocol}}://{{servername}}:{{port}}/{{version}}/tag?tagId&taskId",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{servername}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{version}}",
+								"tag"
+							],
+							"query": [
+								{
+									"key": "tagId",
+									"value": null
+								},
+								{
+									"key": "taskId",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "detach",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{servername}}:{{port}}/{{version}}/tag/?tagId&taskId",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{servername}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{version}}",
+								"tag",
+								""
+							],
+							"query": [
+								{
+									"key": "tagId",
+									"value": null
+								},
+								{
+									"key": "taskId",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "basic",
+				"basic": {
+					"password": "asd",
+					"username": "{{username}}"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "List",
+			"item": [
+				{
+					"name": "list",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"username": "{{username}}",
+								"password": "asd"
+							}
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{servername}}:{{port}}/{{version}}/list",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{servername}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{version}}",
+								"list"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1582194087891091457",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "edit",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": {
+								"username": "{{username}}",
+								"password": "asd"
+							}
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"1579265961523466241\",\n    \"name\": \"default-2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/list"
+					},
+					"response": []
+				},
+				{
+					"name": "listTask",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{servername}}:{{port}}/{{version}}/list?id=1582194087891091457",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{servername}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{version}}",
+								"list"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1582194087891091457"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"diao\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/list"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "basic",
+				"basic": {
+					"password": "asd",
+					"username": "{{username}}"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Task",
+			"item": [
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/task"
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"list_id\": \"1582194087891091457\",\n    \"summary\": \"jakljkl\",\n    \"task\": \"task\",\n    \"due\": \"2022-11-01 00:00:00\",\n    \"priority\": \"1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/task"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{servername}}:{{port}}/{{version}}/task?taskId=1579313706347073538",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{servername}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{version}}",
+								"task"
+							],
+							"query": [
+								{
+									"key": "taskId",
+									"value": "1579313706347073538"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "edit",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/task"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "basic",
+				"basic": {
+					"password": "asd",
+					"username": "{{username}}"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Comment",
+			"item": [
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{servername}}:{{port}}/{{version}}/comment?id",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{servername}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{version}}",
+								"comment"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{servername}}:{{port}}/{{version}}/comment?taskId",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{servername}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{version}}",
+								"comment"
+							],
+							"query": [
+								{
+									"key": "taskId",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"task_id\": \"1579313706347073538\",\n    \"comment\": \"comment\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/comment"
+					},
+					"response": []
+				},
+				{
+					"name": "edit",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"1579317483552759809\",\n    \"comment\": \"你弄啥嘞\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/comment"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{servername}}:{{port}}/{{version}}/comment?id",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{servername}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{version}}",
+								"comment"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "basic",
+				"basic": {
+					"password": "asd",
+					"username": "{{username}}"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Attachment",
+			"item": [
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/attachment"
+					},
+					"response": []
+				},
+				{
+					"name": "get",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{servername}}:{{port}}/{{version}}/attachment?id=1579291064168660994",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{servername}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{version}}",
+								"attachment"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1579291064168660994"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "attach",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"task_id\":\"1579313706347073538\",\n    \"id\":\"1579302962440220673\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/attachment/attach"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{servername}}:{{port}}/{{version}}/attachment?id=1579302962440220673",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{servername}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{version}}",
+								"attachment"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "1579302962440220673"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "basic",
+				"basic": {
+					"password": "asd",
+					"username": "{{username}}"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Health",
+			"item": [
+				{
+					"name": "readiness",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{protocol}}://{{servername}}:{{port}}/actuator/health/readiness"
+					},
+					"response": []
+				},
+				{
+					"name": "liveness",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "{{protocol}}://{{servername}}:{{port}}/actuator/health/liveness"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reminder",
+			"item": [
+				{
+					"name": "list",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{protocol}}://{{servername}}:{{port}}/{{version}}/reminder?taskId",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{servername}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{version}}",
+								"reminder"
+							],
+							"query": [
+								{
+									"key": "taskId",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"task_id\": \"1582195941945958401\",\n    \"reminder_time\": \"2022-10-17 10:38:00\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/reminder"
+					},
+					"response": []
+				},
+				{
+					"name": "edit",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"1582199170406117377\",\n    \"task_id\": \"1582195941945958401\",\n    \"reminder_time\": \"2022-10-17 10:42:00\",\n    \"created_time\": \"2022-10-17 22:37:33\",\n    \"sent\": 0\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/reminder"
+					},
+					"response": []
+				},
+				{
+					"name": "delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\":\"1579317483552759809\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{protocol}}://{{servername}}:{{port}}/{{version}}/reminder"
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "basic",
+				"basic": {
+					"password": "asd",
+					"username": "{{username}}"
+				}
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "hello",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": "{{protocol}}://{{servername}}:{{port}}/"
+			},
+			"response": []
+		}
+	]
+}
